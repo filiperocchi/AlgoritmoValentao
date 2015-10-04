@@ -1,0 +1,74 @@
+SD - trabalho 3 - 2015-2
+
+Algoritmo do Valentão
+
+Inicial[
+	nós se conhecem
+	o maior deles é o coordenador
+	ficam trocando mensagens (pode ser algum clock)
+]
+
+Eleição[
+	se um nó percebe que o coordenador não responde (está fora da lista de nós com flag coordenador), começa uma eleição
+	para os nós com id maior que o seu, manda msg contendo seu id (quer ser o coordenador)
+
+	nó que recebe msg de eleição manda OK (fica quieto aí que eu vou me eleger) pra quem enviou eleição, e começa sua própria eleição
+
+	quando um nó não recebe OKs, se torna o coordenador (poderia parar a execução aí, ou esperar um pouco e sair da lista de coordenadores causando uma nova eleição)
+]
+
+----------------------------------------------------------------------------------------------------
+
+Main{
+	cria threads (id maior é coordenador)
+	inicia threads
+
+	espera um tempo
+	chama método do coordenador pra desligar: shutdownBully()
+}
+
+Node{
+	atributos:
+		lista Nodes
+		boolean coordenador (true quando nó é coordenador)
+		Integer id (único)
+		Integer alive (simula o nó parar de responder)
+		Boolean recebiOK (usada pra saber se não recebeu OK depois de um tempo)
+
+		Queue fila_de_mensagens
+
+
+	métodos:
+		Node{ seta o id, booleans (coordenador, alive e recebiOK), aloca o que precisar}
+
+		run{
+			fica em loop verificando se o coordenador é algum nó maior que eu: isBullyAlive()
+			caso não tenha coordenador(a função anterior retorna false), inicia eleição: becomeBully()
+			a função anterior tem retorno, caso true agora é coordenador, espera um tempo(10sec) e desliga: shutdownBully()
+			caso false, espera um tempo(1sec) e volta pro loop de verificar coordenador
+		}
+
+		isBullyAlive{
+			loop pelos nós com id maior que o meu, verificando o booleano de coordenador, se algum deles é true, retorna o isAlive dele
+			se nenhum é true, retorna false (começar eleição)
+		}
+
+		becomeBully{
+			manda msg com id meu pros nós maiores que eu, espera resposta(máx 5sec for(i<50000(um número grande aí)))
+				esperar_resposta{
+					fica verificando a recebiOK, se é true incrementa i
+				}
+			se não houver resposta muda boolean de coordenador pra true e retorna true
+			caso haja resposta, termina e retorna true
+		}
+
+		shutdownBully{
+			muda booleano de isAlive pra false
+		}
+
+		// usa mesmo esquema de fila pra receberOK
+		receberOK{
+			muda booleano de recebiOK pra false
+		}
+}
+
