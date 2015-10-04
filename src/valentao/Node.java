@@ -45,18 +45,16 @@ public class Node extends Thread {
 
 		msgsToDo = new ConcurrentLinkedQueue<Integer>();
 
-		printId=4; // PARA IMPRESSAO DE APENAS 1 NÓ COLOQUE O NÚMERO DELE, i PARA TODOS
+		printId=id; // PARA IMPRESSAO DE APENAS 1 NÓ COLOQUE O NÚMERO DELE, i PARA TODOS
 		
-		if (debug && printId==id) {
-			System.out.println("Node " + id+" (clock:"+clock+ ") criado, coord:"+coordenador+", alive:"+alive);
-		}
+		if (debug && printId==id) System.out.println("Node " + id+" (clock:"+clock+ ") criado, coord:"+coordenador+", alive:"+alive);
 	}
 
 	@Override
 	public void run() {
 		if(debug && printId==id) System.out.println("Node "+id+" (clock:"+clock+"): run");
 		
-		Thread t1 = new Thread(() -> {
+		Thread t1 = new Thread(() -> { // Thread para tratar a troca de mensagens em paralelo (usa lambda function ()->)
 			while (alive) {
 				Integer i = msgsToDo.poll();
 				
@@ -81,8 +79,8 @@ public class Node extends Thread {
 			clock++;
 
 			if (becomeBully()) { // caso eu tenha me tornado o coordenador
-				
 				if(printId==id) System.out.println("node"+id+" (clock:"+clock+"): Sou o novo coordenador");
+				
 				//*/
 				try {
 					Thread.sleep(1000); // dorme uns 1sec
@@ -107,9 +105,7 @@ public class Node extends Thread {
 	}
 
 	public Boolean isBullyAlive() {
-		if (debug && printId==id) {
-			//System.out.println("node" + id+" (clock:"+clock+"): isBullyAlive");
-		}
+		if (debug && printId==id); //System.out.println("node" + id+" (clock:"+clock+"): isBullyAlive");
 		
 		for (int i = this.id+1; i < nodes.size(); i++) { // para os nós maiores que eu
 			Node n = nodes.get(i);
@@ -125,9 +121,7 @@ public class Node extends Thread {
 	}
 
 	public Boolean becomeBully() {
-		if (debug && printId==id) {
-			System.out.println("node" + id+" (clock:"+clock+"): becomeBully");
-		}
+		if (debug && printId==id) System.out.println("node" + id+" (clock:"+clock+"): becomeBully");
 
 		sendMsg(); // manda as mensagens pra galera
 
@@ -146,32 +140,24 @@ public class Node extends Thread {
 	}
 
 	public void shutdownBully() {
-		if (debug && printId==id) {
-			System.out.println("node" + id+" (clock:"+clock+"): shutdownBully");
-		}
+		if (debug && printId==id) System.out.println("node" + id+" (clock:"+clock+"): shutdownBully");
 
 		alive = false;
 	}
 
 	public void receiveOk(Integer idSender) {
-		if (debug && printId==id) {
-			System.out.println("node" + id+" (clock:"+clock+"): receiveOk; Sender: "+idSender);
-		}
+		if (debug && printId==id) System.out.println("node" + id+" (clock:"+clock+"): receiveOk; Sender: "+idSender);
 
 		recebiOk = true;
 	}
 
 	public void sendMsg() {
-		if (debug && printId==id) {
-			System.out.println("node" + id+" (clock:"+clock+"): sendMsg");
-		}
+		if (debug && printId==id) System.out.println("node" + id+" (clock:"+clock+"): sendMsg");
 
 		for (int i = this.id+1; i < nodes.size(); i++) { // para os nós maiores que eu
 			Node n = nodes.get(i);
 			
-			if (1==1 && printId==id) {
-				System.out.println("node"+id+" (clock:"+clock+"): sendMsg to "+n.id+", isAlive: "+n.alive);
-			}
+			if (1==0 && printId==id) System.out.println("node"+id+" (clock:"+clock+"): sendMsg to "+n.id+", isAlive: "+n.alive);
 			
 			if (n.alive) { // e que estejam vivos/ativos
 				n.receiveMsg(this.id); // faz eles receberem a mensagem com meu id
@@ -180,9 +166,7 @@ public class Node extends Thread {
 	}
 
 	public void receiveMsg(Integer idSender) {
-		if (debug && printId==id) {
-			System.out.println("node" + id+" (clock:"+clock+"): receiveMsg; Sender: "+idSender);
-		}
+		if (debug && printId==id) System.out.println("node" + id+" (clock:"+clock+"): receiveMsg; Sender: "+idSender);
 
 		msgsToDo.add(idSender);
 	}
@@ -192,9 +176,7 @@ public class Node extends Thread {
 			throw new RuntimeException();
 		}
 		
-		if (debug && printId==id) {
-			System.out.println("node" + id+" (clock:"+clock+"): processMsg, sending OK to "+idSender);
-		}
+		if (debug && printId==id) System.out.println("node" + id+" (clock:"+clock+"): processMsg, sending OK to "+idSender);
 
 		Node n = nodes.get(idSender);
 		n.receiveOk(this.id);
