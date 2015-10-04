@@ -14,7 +14,7 @@ public class Valentao {
 		if(1==1) System.out.println("Integer.MAX_VALUE: "+Integer.MAX_VALUE);
 		
 		// cria e inicia threads
-		for(int i = 1; i <= Node.NUM_NODES; i++){
+		for(int i = 0; i < Node.NUM_NODES; i++){
 			if(i!=Node.NUM_NODES)
 				Node.nodes.add(new Node(i, false));
 			else
@@ -25,9 +25,9 @@ public class Valentao {
 		for(Node n : Node.nodes){
 			n.start();
 		}
-		
+		Integer num = Node.NUM_NODES-1;
 		// chama shutdown da thread coordenador
-		System.out.println("Removendo coordenador "+Node.NUM_NODES);
+		System.out.println("Removendo coordenador "+num);
 		Node coord = Node.nodes.get(Node.NUM_NODES-1);
 		coord.shutdownBully();
 		

@@ -25,6 +25,8 @@ public class Node extends Thread {
 	public Boolean coordenador;
 	public Boolean alive;
 	public Boolean recebiOk;
+	
+	public Integer clock;
 
 	private final Queue<Integer> msgsToDo;
 
@@ -38,18 +40,21 @@ public class Node extends Thread {
 		coordenador = c;
 		alive = true;
 		recebiOk = false;
+		
+		clock = 0;
 
 		msgsToDo = new ConcurrentLinkedQueue<Integer>();
 
-		printId=5;
+		printId=4; // PARA IMPRESSAO DE APENAS 1 NÓ COLOQUE O NÚMERO DELE, i PARA TODOS
+		
 		if (debug && printId==id) {
-			System.out.println("Node " + id + " criado, coord:"+coordenador+", alive:"+alive);
+			System.out.println("Node " + id+" (clock:"+clock+ ") criado, coord:"+coordenador+", alive:"+alive);
 		}
 	}
 
 	@Override
 	public void run() {
-		if(debug && printId==id) System.out.println("Node "+id+": run");
+		if(debug && printId==id) System.out.println("Node "+id+" (clock:"+clock+"): run");
 		
 		Thread t1 = new Thread(() -> {
 			while (alive) {
@@ -67,51 +72,52 @@ public class Node extends Thread {
 
 		while (alive) {
 			while (true) {
-				if (!coordenador && !isBullyAlive()) { // se o bully estiver vivo, faz nada
-					if(printId==id) System.out.println("Node " + id + " detectou ausência de coordenador");
+				if (!coordenador && !isBullyAlive()) { // se eu não for o coord e o bully estiver vivo, faz nada
+					if(printId==id) System.out.println("Node " + id+" (clock:"+clock+") detectou ausência de coordenador");
 					break; // se não, sai e começa o processo de eleição
 				}
 			}
+			
+			clock++;
 
 			if (becomeBully()) { // caso eu tenha me tornado o coordenador
 				
-				if(printId==id) System.out.println("node"+id+": Sou o novo coordenador");
+				if(printId==id) System.out.println("node"+id+" (clock:"+clock+"): Sou o novo coordenador");
 				//*/
 				try {
-					Thread.sleep(5000); // dorme uns 5sec
+					Thread.sleep(1000); // dorme uns 1sec
 				} catch (InterruptedException ex) {
 					Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
 				}//*/
 				shutdownBully();
 			} else { // caso alguem esteja começando uma nova eleição
-				if(debug && printId==id) System.out.println("node"+id+": alguem começou outra eleição");
+				if(debug && printId==id) System.out.println("node"+id+" (clock:"+clock+"): alguem começou outra eleição");
 				//*
 				try {
-					Thread.sleep(500); // dorme uns .5sec
+					Thread.sleep(200); // dorme uns .2sec
 				} catch (InterruptedException ex) {
 					Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
 				}//*/
 
 				recebiOk = false;
 			}
+			
 		}
 
 	}
 
 	public Boolean isBullyAlive() {
 		if (debug && printId==id) {
-			//System.out.println("node" + id + ": isBullyAlive");
+			//System.out.println("node" + id+" (clock:"+clock+"): isBullyAlive");
 		}
-
-		for (Node n : nodes) { // roda pelos nós
-			if (n.id > this.id) { // para os maiores que eu
-				if (n.coordenador) { // verifica se é coordenador
-					if (n.alive) { // retorna se está vivo ou não
-						return true;
-					}
-
-					return false;
+		
+		for (int i = this.id+1; i < nodes.size(); i++) { // para os nós maiores que eu
+			Node n = nodes.get(i);
+			if (n.coordenador) { // verifica se é coordenador
+				if (n.alive) { // retorna se está vivo ou não
+					return true;
 				}
+				return false;
 			}
 		}
 
@@ -120,16 +126,17 @@ public class Node extends Thread {
 
 	public Boolean becomeBully() {
 		if (debug && printId==id) {
-			System.out.println("node" + id + ": becomeBully");
+			System.out.println("node" + id+" (clock:"+clock+"): becomeBully");
 		}
 
 		sendMsg(); // manda as mensagens pra galera
 
-		int i = 0;
-		while (i < 50000) {
+		Integer i = 0;
+		while (i < 500000) {
 			if (recebiOk == false) {
 				i++; // segue o loop
 			} else {
+				msgsToDo.clear();
 				return false; // caso tenha recebido algum Ok, retorna false
 			}
 		}
@@ -140,7 +147,7 @@ public class Node extends Thread {
 
 	public void shutdownBully() {
 		if (debug && printId==id) {
-			System.out.println("node" + id + ": shutdownBully");
+			System.out.println("node" + id+" (clock:"+clock+"): shutdownBully");
 		}
 
 		alive = false;
@@ -148,7 +155,7 @@ public class Node extends Thread {
 
 	public void receiveOk(Integer idSender) {
 		if (debug && printId==id) {
-			System.out.println("node" + id + ": receiveOk; Sender: "+idSender);
+			System.out.println("node" + id+" (clock:"+clock+"): receiveOk; Sender: "+idSender);
 		}
 
 		recebiOk = true;
@@ -156,13 +163,17 @@ public class Node extends Thread {
 
 	public void sendMsg() {
 		if (debug && printId==id) {
-			System.out.println("node" + id + ": sendMsg");
+			System.out.println("node" + id+" (clock:"+clock+"): sendMsg");
 		}
 
-		for (int i = this.id; i < nodes.size(); i++) { // para os nós maiores que eu
+		for (int i = this.id+1; i < nodes.size(); i++) { // para os nós maiores que eu
 			Node n = nodes.get(i);
-
-			if (n.id > this.id) {
+			
+			if (1==1 && printId==id) {
+				System.out.println("node"+id+" (clock:"+clock+"): sendMsg to "+n.id+", isAlive: "+n.alive);
+			}
+			
+			if (n.alive) { // e que estejam vivos/ativos
 				n.receiveMsg(this.id); // faz eles receberem a mensagem com meu id
 			}
 		}
@@ -170,7 +181,7 @@ public class Node extends Thread {
 
 	public void receiveMsg(Integer idSender) {
 		if (debug && printId==id) {
-			System.out.println("node" + id + ": receiveMsg; Sender: "+idSender);
+			System.out.println("node" + id+" (clock:"+clock+"): receiveMsg; Sender: "+idSender);
 		}
 
 		msgsToDo.add(idSender);
@@ -182,7 +193,7 @@ public class Node extends Thread {
 		}
 		
 		if (debug && printId==id) {
-			System.out.println("node" + id + ": processMsg, sending OK to "+idSender);
+			System.out.println("node" + id+" (clock:"+clock+"): processMsg, sending OK to "+idSender);
 		}
 
 		Node n = nodes.get(idSender);
