@@ -32,7 +32,7 @@ Node{
 		lista Nodes
 		boolean coordenador (true quando nó é coordenador)
 		Integer id (único)
-		Integer alive (simula o nó parar de responder)
+		Boolean alive (simula o nó parar de responder)
 		Boolean recebiOK (usada pra saber se não recebeu OK depois de um tempo)
 
 		Queue fila_de_mensagens
@@ -44,8 +44,8 @@ Node{
 		run{
 			fica em loop verificando se o coordenador é algum nó maior que eu: isBullyAlive()
 			caso não tenha coordenador(a função anterior retorna false), inicia eleição: becomeBully()
-			a função anterior tem retorno, caso true agora é coordenador, espera um tempo(10sec) e desliga: shutdownBully()
-			caso false, espera um tempo(1sec) e volta pro loop de verificar coordenador
+			a função anterior tem retorno, caso true agora é coordenador, espera um tempo(5sec) e desliga: shutdownBully()
+			caso false, espera um tempo(.5sec), reseta variavel recebiOk para false, e volta pro loop de verificar coordenador
 		}
 
 		isBullyAlive{
@@ -54,21 +54,32 @@ Node{
 		}
 
 		becomeBully{
-			manda msg com id meu pros nós maiores que eu, espera resposta(máx 5sec for(i<50000(um número grande aí)))
+			manda msg (sendMsg) com id meu pros nós maiores que eu, espera resposta(máx 5sec for(i<50000(um número grande aí)))
 				esperar_resposta{
-					fica verificando a recebiOK, se é true incrementa i
+					fica verificando a recebiOK, se é false incrementa i
 				}
 			se não houver resposta muda boolean de coordenador pra true e retorna true
 			caso haja resposta, termina e retorna true
 		}
 
 		shutdownBully{
-			muda booleano de isAlive pra false
+			muda booleano de alive pra false
 		}
 
-		// usa mesmo esquema de fila pra receberOK
 		receberOK{
-			muda booleano de recebiOK pra false
+			muda booleano de recebiOK pra true
+		}
+
+		// usa mesmo esquema de fila-buffer pra receberMsg
+		sendMsg{
+			chama receberMsg dos nodes maiores que eu passando meu id
+		}
+
+		receiveMsg{
+			adiciona na fila de msgs para processar
+		}
+		processMsg{
+			faz os paranaues de processar da fila (copiar de algum trabalho anterior)
 		}
 }
 
