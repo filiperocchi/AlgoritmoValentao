@@ -14,10 +14,10 @@ public class Valentao {
 		
 		// cria e inicia threads
 		for(int i = 0; i < Node.NUM_NODES; i++){
-			//if(i!=Node.NUM_NODES-1)
+			if(i!=Node.NUM_NODES-1)
 				Node.nodes.add(new Node(i, false));
-			//else
-			//	Node.nodes.add(new Node(i, true)); // para o de maior id, coordenador ele será
+			else
+				Node.nodes.add(new Node(i, true)); // para o de maior id, coordenador ele será
 		}
 		
 		System.out.println("\nMAIN: Starting Nodes.");
@@ -27,11 +27,11 @@ public class Valentao {
 		
 		Thread.sleep(500);
 		
-		//Integer num = Node.NUM_NODES-1;
+		Integer num = Node.NUM_NODES-1;
 		// chama shutdown da thread coordenador
-		//System.out.println("Removendo coordenador "+num);
-		//Node coord = Node.nodes.get(num);
-		//coord.shutdownBully();
+		System.out.println("Removendo coordenador "+num);
+		Node coord = Node.nodes.get(num);
+		coord.shutdownBully();
 		
 		for(Node n : Node.nodes){
 			n.join();
