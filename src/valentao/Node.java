@@ -45,7 +45,7 @@ public class Node extends Thread {
 
 		msgsToDo = new ConcurrentLinkedQueue<Integer>();
 
-		printId=id; // PARA IMPRESSAO DE APENAS 1 NÓ COLOQUE O NÚMERO DELE, i PARA TODOS
+		printId=i; // PARA IMPRESSAO DE APENAS 1 NÓ COLOQUE O NÚMERO DELE, i PARA TODOS
 		
 		if (debug && printId==id) System.out.println("Node " + id+" (clock:"+clock+ ") criado, coord:"+coordenador+", alive:"+alive);
 	}
@@ -126,11 +126,11 @@ public class Node extends Thread {
 		sendMsg(); // manda as mensagens pra galera
 
 		Integer i = 0;
-		while (i < 500000) {
+		while (i < 10000000) {
 			if (recebiOk == false) {
 				i++; // segue o loop
 			} else {
-				msgsToDo.clear();
+				msgsToDo.clear(); // recebeu um OK já para as operações
 				return false; // caso tenha recebido algum Ok, retorna false
 			}
 		}

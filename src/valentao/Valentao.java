@@ -11,25 +11,27 @@ package valentao;
 public class Valentao {
 
 	public static void main(String[] args) throws InterruptedException {
-		if(1==1) System.out.println("Integer.MAX_VALUE: "+Integer.MAX_VALUE);
 		
 		// cria e inicia threads
 		for(int i = 0; i < Node.NUM_NODES; i++){
-			if(i!=Node.NUM_NODES)
+			//if(i!=Node.NUM_NODES-1)
 				Node.nodes.add(new Node(i, false));
-			else
-				Node.nodes.add(new Node(i, true)); // para o de maior id, coordenador ele será
+			//else
+			//	Node.nodes.add(new Node(i, true)); // para o de maior id, coordenador ele será
 		}
 		
 		System.out.println("\nMAIN: Starting Nodes.");
 		for(Node n : Node.nodes){
 			n.start();
 		}
-		Integer num = Node.NUM_NODES-1;
+		
+		Thread.sleep(500);
+		
+		//Integer num = Node.NUM_NODES-1;
 		// chama shutdown da thread coordenador
-		System.out.println("Removendo coordenador "+num);
-		Node coord = Node.nodes.get(Node.NUM_NODES-1);
-		coord.shutdownBully();
+		//System.out.println("Removendo coordenador "+num);
+		//Node coord = Node.nodes.get(num);
+		//coord.shutdownBully();
 		
 		for(Node n : Node.nodes){
 			n.join();
